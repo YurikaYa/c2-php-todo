@@ -2,25 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CreateTodoRequest;
 use App\Todo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class TodoController extends Controller
 {
-     // ページネーションの件数
-     private const PAGE_SIZE = 5;
+    // ページネーションの件数
+    private const PAGE_SIZE = 5;
 
     /**
      * Display a listing of the resource.
-     *
+     * Todo一覧を取得
      * @return \Illuminate\Http\Response
      */
     public function index()
     {
-        $todo_list = Auth::user()->todos()->paginate(self::PAGE_SIZE);
-        \Log::info($todo_list);
-        return view('todo/index', compact('todo_list' ));
+        $todo_list = Auth::user()->todos()->orderBy('due_date', 'asc')->paginate(self::PAGE_SIZE);
+        return view('todo/index', compact('todo_list'));
     }
 
     /**
@@ -39,25 +39,24 @@ class TodoController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(CreateTodoRequest $request)
     {
-        $todo new Todo();
+        $todo = new Todo();
         $todo->title = $request->title;
-        $todo->due_date =$request->due_date;
-        $todo->statud = Todo::STATUS_NOT_YET;
+        $todo->due_date = $request->due_date;
+        $todo->status = Todo::STATUS_NOT_YET;
 
-        Auth::user()
-
-        
+        Auth::user()->todos()->save($todo);
+        return redirect()->to('/todo');
     }
 
     /**
      * Display the specified resource.
-     *
+     * Todo単体を取得
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(int $id)
     {
         $todo = Auth::user()->todos()->findOrFail($id);
         return view('todo/show', compact('todo'));
@@ -71,7 +70,8 @@ class TodoController extends Controller
      */
     public function edit($id)
     {
-        //
+        $todo = Auth::user()->todos()->findOrFail($id);
+        return view('todo/edit', compact('todo'));
     }
 
     /**
@@ -83,7 +83,13 @@ class TodoController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $todo=Auto::user()->todos()->findOrFail($id);
+        $todo->title = $request->title;
+        $todo->due_date =$request->due_date;
+        $todo->save();
+
+        return redirect()->todo( path: '/todo/' . $todo->id);
+
     }
 
     /**
