@@ -73,15 +73,14 @@ class TodoController extends Controller
      */
     public function update(CreateTodoRequest $request, $id)
     {
-
         $todo = Auth::user()->todos()->findOrFail($id);
         $todo->title = $request->title;
         $todo->due_date = $request->due_date;
+        $todo->status = $request->status;
         $todo->save();
 
         return redirect()->to('/todo/' . $todo->id);
     }
-
     /**
      * Remove the specified resource from storage.
      *
@@ -89,16 +88,9 @@ class TodoController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
-    {   
-        //削除したいタスクを取得する
+    {
         $todo = Auth::user()->todos()->findOrFail($id);
-
-        //タスクを削除する
         $todo->delete();
-
-        //タスク一覧にリダイレクト
         return redirect()->to('/todo');
-        
-        
     }
 }
