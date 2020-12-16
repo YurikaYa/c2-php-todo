@@ -31,4 +31,5 @@ class CreateTodosTable extends Migration
     {
         Schema::dropIfExists('todos');
     }
+    
 }
